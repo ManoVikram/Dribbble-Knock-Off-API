@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/ManoVikram/flexibbble-api/database"
@@ -15,12 +14,6 @@ func CreateProjectHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
-	fmt.Println("Project Title - ", project.Title)
-	fmt.Println("Project Description - ", project.Description)
-	fmt.Println("Project Live Site URL - ", project.LiveSiteURL)
-	fmt.Println("Project Github URL - ", project.GitHubURL)
-	fmt.Println("Project Category - ", project.Category)
 
 	imageURL, err := UploadToImageKitHandler("image", project.Image)
 	if err != nil {

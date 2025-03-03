@@ -19,6 +19,7 @@ func main() {
 	database.Connect()
 
 	server := gin.Default()
+	
 	// Configure CORS
 	server.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:3000"},
@@ -27,6 +28,8 @@ func main() {
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 	}))
+
+	server.RedirectTrailingSlash = true
 
 	routes.RegisterRoutes(server)
 

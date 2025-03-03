@@ -78,5 +78,11 @@ FOR EACH ROW
 EXECUTE PROCEDURE update_updated_at_column();
 
 -- Insert queries
+-- Create a new project
 INSERT INTO projects (title, description, image, live_site_url, github_url, category, created_by)
 VALUES ($1, $2, $3, $4, $5, $6, $7);
+
+-- Select all projects
+SELECT id, title, description, image, live_site_url, github_url, category, created_by, created_at, updated_at
+FROM projects
+ORDER BY updated_at DESC;
