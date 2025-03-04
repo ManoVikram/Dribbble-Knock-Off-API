@@ -14,5 +14,5 @@ func RegisterRoutes(server *gin.Engine) {
 	server.POST("/api/createproject", handlers.CreateProjectHandler)
 	
 	// Select all projects endpoint
-	server.POST("/api/selectallprojects", handlers.CreateProjectHandler)
+	server.GET("/api/allprojects", handlers.FetchAllProjectsHandler)
 }
