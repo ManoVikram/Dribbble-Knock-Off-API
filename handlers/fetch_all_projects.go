@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"database/sql"
 	"net/http"
 
 	"github.com/ManoVikram/flexibbble-api/database"
@@ -9,9 +10,11 @@ import (
 )
 
 func FetchAllProjectsHandler(c *gin.Context) {
-	query := `SELECT id, title, description, image, live_site_url, github_url, category, created_by, created_at, updated_at
-				FROM projects
-				ORDER BY updated_at DESC;`
+	query := `
+		SELECT id, title, description, image, live_site_url, github_url, category, created_by, created_at, updated_at
+		FROM projects
+		ORDER BY updated_at DESC;
+	`
 	rows, err := database.DB.Query(query)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -19,7 +22,7 @@ func FetchAllProjectsHandler(c *gin.Context) {
 	}
 	defer rows.Close()
 
-	var projects []models.Project
+	var enrichedProjects []gin.H
 
 	for rows.Next() {
 		var project models.Project
@@ -41,7 +44,39 @@ func FetchAllProjectsHandler(c *gin.Context) {
 			return
 		}
 
-		projects = append(projects, project)
+		var user models.User
+		query = "SELECT id, name, email, image, description, github_url, linkedin_ulr FROM users WHERE id = $1"
+		err = database.DB.QueryRow(query, project.CreatedBy).Scan(
+			&user.ID,
+			&user.Name,
+			&user.Email,
+			&user.Image,
+			&user.Description,
+			&user.GitHubURL,
+			&user.LinkedInURL,
+		)
+
+		if err != nil {
+			if err == sql.ErrNoRows {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching details"})
+				return
+			}
+
+			user = models.User{}
+		}
+
+		enrichedProjects = append(enrichedProjects, gin.H{
+			"id":            project.ID,
+			"title":         project.Title,
+			"description":   project.Description,
+			"image":         project.Image,
+			"live_site_url": project.LiveSiteURL,
+			"github_url":    project.GitHubURL,
+			"category":      project.Category,
+			"created_at":    project.CreatedAt,
+			"updated_at":    project.UpdatedAt,
+			"created_by":    user, // Embed user details instead of just UUID
+		})
 	}
 
 	if err = rows.Err(); err != nil {
@@ -49,5 +84,5 @@ func FetchAllProjectsHandler(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, projects)
+	c.JSON(http.StatusOK, enrichedProjects)
 }
