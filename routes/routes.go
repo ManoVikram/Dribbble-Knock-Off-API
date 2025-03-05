@@ -2,6 +2,7 @@ package routes
 
 import (
 	"github.com/ManoVikram/flexibbble-api/handlers"
+	"github.com/ManoVikram/flexibbble-api/middlewares"
 	"github.com/gin-gonic/gin"
 )
 
@@ -10,9 +11,12 @@ func RegisterRoutes(server *gin.Engine) {
 	server.POST("/api/auth/signup", handlers.SignupHandler)
 	server.POST("/api/auth/login", handlers.LoginHandler)
 
+	protectedRoutes := server.Group("/api")
+	protectedRoutes.Use(middlewares.AuthMiddleware())
+
 	// Create project endpoint
-	server.POST("/api/createproject", handlers.CreateProjectHandler)
+	protectedRoutes.POST("/api/createproject", handlers.CreateProjectHandler)
 	
 	// Select all projects endpoint
-	server.GET("/api/allprojects", handlers.FetchAllProjectsHandler)
+	protectedRoutes.GET("/api/allprojects", handlers.FetchAllProjectsHandler)
 }
