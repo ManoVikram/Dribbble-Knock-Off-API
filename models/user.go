@@ -9,4 +9,6 @@ type User struct {
 	Description string `json:"description"`
 	GitHubURL string `json:"github_url"`
 	LinkedInURL string `json:"linkedin_ulr"`
+	Password string `json:"-"`
+	PasswordHash string `json:"password;omitempty"`
 }
