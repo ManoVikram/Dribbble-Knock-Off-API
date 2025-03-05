@@ -30,7 +30,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		var userID string
 
 		// Validate token against the database
-		query := `SELECT userId FROM session WHERE sessionToken = $1`
+		query := `SELECT "userId" FROM sessions WHERE "sessionToken" = $1`
 		err := database.DB.QueryRow(query, sessionToken).Scan(&userID)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})

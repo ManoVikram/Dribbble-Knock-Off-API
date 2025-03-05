@@ -45,15 +45,18 @@ func FetchAllProjectsHandler(c *gin.Context) {
 		}
 
 		var user models.User
-		query = "SELECT id, name, email, image, description, github_url, linkedin_ulr FROM users WHERE id = $1"
+		query = "SELECT id, name, email, image, description, github_url, linkedin_url FROM users WHERE id = $1"
+		// NOTE: If any of the selected fields contain NULL, .Scan() will fail
+		// Handle nullable fields
+		var name, email, image, description, githubURL, linkedInURL sql.NullString
 		err = database.DB.QueryRow(query, project.CreatedBy).Scan(
 			&user.ID,
-			&user.Name,
-			&user.Email,
-			&user.Image,
-			&user.Description,
-			&user.GitHubURL,
-			&user.LinkedInURL,
+			&name,
+			&email,
+			&image,
+			&description,
+			&githubURL,
+			&linkedInURL,
 		)
 
 		if err != nil {
@@ -64,6 +67,14 @@ func FetchAllProjectsHandler(c *gin.Context) {
 
 			user = models.User{}
 		}
+
+		// Convert sql.NullString to regular strings
+		user.Name = name.String
+		user.Email = email.String
+		user.Image = image.String
+		user.Description = description.String
+		user.GitHubURL = githubURL.String
+		user.LinkedInURL = linkedInURL.String
 
 		enrichedProjects = append(enrichedProjects, gin.H{
 			"id":            project.ID,

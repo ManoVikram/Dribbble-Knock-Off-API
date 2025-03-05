@@ -15,8 +15,8 @@ func RegisterRoutes(server *gin.Engine) {
 	protectedRoutes.Use(middlewares.AuthMiddleware())
 
 	// Create project endpoint
-	protectedRoutes.POST("/api/createproject", handlers.CreateProjectHandler)
+	protectedRoutes.POST("/createproject", handlers.CreateProjectHandler)
 	
 	// Select all projects endpoint
-	protectedRoutes.GET("/api/allprojects", handlers.FetchAllProjectsHandler)
+	protectedRoutes.GET("/allprojects", handlers.FetchAllProjectsHandler)
 }
