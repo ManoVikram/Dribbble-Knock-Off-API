@@ -11,6 +11,10 @@ func RegisterRoutes(server *gin.Engine) {
 	server.POST("/api/auth/signup", handlers.SignupHandler)
 	server.POST("/api/auth/login", handlers.LoginHandler)
 
+	// Select project details by ID
+	server.GET("api/project/:id", handlers.GetProjectDetailsHandler)
+
+	// Protected routes
 	protectedRoutes := server.Group("/api")
 	protectedRoutes.Use(middlewares.AuthMiddleware())
 
@@ -18,5 +22,5 @@ func RegisterRoutes(server *gin.Engine) {
 	protectedRoutes.POST("/createproject", handlers.CreateProjectHandler)
 	
 	// Select all projects endpoint
-	protectedRoutes.GET("/allprojects", handlers.FetchAllProjectsHandler)
+	protectedRoutes.GET("/allprojects", handlers.GetAllProjectsHandler)
 }

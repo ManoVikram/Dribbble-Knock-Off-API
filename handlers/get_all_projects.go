@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func FetchAllProjectsHandler(c *gin.Context) {
+func GetAllProjectsHandler(c *gin.Context) {
 	query := `
 		SELECT id, title, description, image, live_site_url, github_url, category, created_by, created_at, updated_at
 		FROM projects
@@ -58,7 +58,6 @@ func FetchAllProjectsHandler(c *gin.Context) {
 			&githubURL,
 			&linkedInURL,
 		)
-
 		if err != nil {
 			if err == sql.ErrNoRows {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching details"})
@@ -89,7 +88,6 @@ func FetchAllProjectsHandler(c *gin.Context) {
 			"created_by":    user, // Embed user details instead of just UUID
 		})
 	}
-
 	if err = rows.Err(); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
