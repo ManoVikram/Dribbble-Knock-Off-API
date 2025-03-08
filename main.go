@@ -19,7 +19,7 @@ func main() {
 	database.Connect()
 
 	server := gin.Default()
-	
+
 	// Configure CORS
 	server.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:3000"},

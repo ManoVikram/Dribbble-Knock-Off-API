@@ -20,7 +20,7 @@ func RegisterRoutes(server *gin.Engine) {
 
 	// Create project endpoint
 	protectedRoutes.POST("/createproject", handlers.CreateProjectHandler)
-	
+
 	// Select all projects endpoint
 	protectedRoutes.GET("/allprojects", handlers.GetAllProjectsHandler)
 }
