@@ -29,4 +29,7 @@ func RegisterRoutes(server *gin.Engine) {
 
 	// Delete a project based on ID
 	protectedRoutes.DELETE("/deleteproject/:id", handlers.DeleteProjectHandler)
+
+	// Update a project
+	protectedRoutes.PUT("/updateproject/:id", handlers.UpdateProjectHandler)
 }
