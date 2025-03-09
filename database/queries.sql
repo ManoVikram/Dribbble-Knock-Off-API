@@ -86,3 +86,6 @@ VALUES ($1, $2, $3, $4, $5, $6, $7);
 SELECT id, title, description, image, live_site_url, github_url, category, created_by, created_at, updated_at
 FROM projects
 ORDER BY updated_at DESC;
+
+-- Delete a project
+DELETE FROM projects WHERE id = $1;

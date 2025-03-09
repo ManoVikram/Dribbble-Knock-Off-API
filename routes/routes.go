@@ -26,4 +26,7 @@ func RegisterRoutes(server *gin.Engine) {
 
 	// Select all projects endpoint
 	protectedRoutes.GET("/allprojects", handlers.GetAllProjectsHandler)
+
+	// Delete a project based on ID
+	protectedRoutes.DELETE("/deleteproject/:id", handlers.DeleteProjectHandler)
 }
