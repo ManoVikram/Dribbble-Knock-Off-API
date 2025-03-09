@@ -10,7 +10,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func ProjectsByUserHandler(c *gin.Context) {
+func GetProjectsByUserHandler(c *gin.Context) {
 	userIDString := c.Param("id")
 	userID, err := uuid.Parse(userIDString)
 	if err != nil {
@@ -21,20 +21,21 @@ func ProjectsByUserHandler(c *gin.Context) {
 	var user models.User
 
 	query := `
-		SELECT id, name, email, emailVerified, image, description, github_url, linkedin_url
+		SELECT id, name, email, "emailVerified", image, description, github_url, linkedin_url
 		FROM users
 		WHERE id = $1
 	`
 
+	var name, email, emailVerified, image, description, githubURL, linkedInURL sql.NullString
 	err = database.DB.QueryRow(query, userID).Scan(
 		&user.ID,
-		&user.Name,
-		&user.Email,
-		&user.EmailVerified,
-		&user.Image,
-		&user.Description,
-		&user.GitHubURL,
-		&user.LinkedInURL,
+		&name,
+		&email,
+		&emailVerified,
+		&image,
+		&description,
+		&githubURL,
+		&linkedInURL,
 	)
 	if err == sql.ErrNoRows {
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
@@ -43,6 +44,15 @@ func ProjectsByUserHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
+	// Convert sql.NullString to regular strings
+	user.Name = name.String
+	user.Email = email.String
+	user.EmailVerified = emailVerified.String
+	user.Image = image.String
+	user.Description = description.String
+	user.GitHubURL = githubURL.String
+	user.LinkedInURL = linkedInURL.String
 
 	var projects []models.Project
 
@@ -86,14 +96,14 @@ func ProjectsByUserHandler(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"id":            user.ID,
-		"name":          user.Name,
-		"email":         user.Email,
-		"emailVerified": user.EmailVerified,
-		"image":         user.Image,
-		"description":   user.Description,
-		"githubUrl":     user.GitHubURL,
-		"linkedinUrl":   user.LinkedInURL,
-		"projects":      projects,
+		"id":             user.ID,
+		"name":           user.Name,
+		"email":          user.Email,
+		"email_verified": user.EmailVerified,
+		"image":          user.Image,
+		"description":    user.Description,
+		"github_url":     user.GitHubURL,
+		"linkedin_url":   user.LinkedInURL,
+		"projects":       projects,
 	})
 }

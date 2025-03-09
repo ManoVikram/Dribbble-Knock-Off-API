@@ -14,6 +14,9 @@ func RegisterRoutes(server *gin.Engine) {
 	// Select project details by ID
 	server.GET("api/project/:id", handlers.GetProjectDetailsHandler)
 
+	// Select project details by ID
+	server.GET("api/projects/:id", handlers.GetProjectsByUserHandler)
+
 	// Protected routes
 	protectedRoutes := server.Group("/api")
 	protectedRoutes.Use(middlewares.AuthMiddleware())
