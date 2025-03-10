@@ -10,19 +10,31 @@ import (
 )
 
 func GetAllProjectsHandler(c *gin.Context) {
+	category := c.Query("category")
+
 	query := `
 		SELECT id, title, description, image, live_site_url, github_url, category, created_by, created_at, updated_at
 		FROM projects
-		ORDER BY updated_at DESC;
 	`
-	rows, err := database.DB.Query(query)
+
+	// If category is provided, add a WHERE clause
+	var rows *sql.Rows
+	var err error
+	if category != "" {
+		query += " WHERE category = $1 ORDER BY updated_at DESC;"
+		rows, err = database.DB.Query(query, category)
+	} else {
+		query += " ORDER BY updated_at DESC;"
+		rows, err = database.DB.Query(query)
+	}
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	defer rows.Close()
 
-	var enrichedProjects []gin.H
+	enrichedProjects := make([]gin.H, 0)
 
 	for rows.Next() {
 		var project models.Project
