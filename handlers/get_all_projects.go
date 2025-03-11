@@ -3,6 +3,7 @@ package handlers
 import (
 	"database/sql"
 	"net/http"
+	"strconv"
 
 	"github.com/ManoVikram/flexibbble-api/database"
 	"github.com/ManoVikram/flexibbble-api/models"
@@ -12,6 +13,19 @@ import (
 func GetAllProjectsHandler(c *gin.Context) {
 	category := c.Query("category")
 
+	// Extract pagination parameters
+	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
+	if err != nil || page < 1 {
+		page = 1
+	}
+
+	limit, err := strconv.Atoi(c.DefaultQuery("limit", "10"))
+	if err != nil || limit < 1 {
+		limit = 10
+	}
+
+	offset := (page - 1) * limit
+
 	query := `
 		SELECT id, title, description, image, live_site_url, github_url, category, created_by, created_at, updated_at
 		FROM projects
@@ -19,13 +33,12 @@ func GetAllProjectsHandler(c *gin.Context) {
 
 	// If category is provided, add a WHERE clause
 	var rows *sql.Rows
-	var err error
 	if category != "" {
-		query += " WHERE category = $1 ORDER BY updated_at DESC;"
-		rows, err = database.DB.Query(query, category)
+		query += " WHERE category = $1 ORDER BY updated_at DESC LIMIT $2 OFFSET $3;"
+		rows, err = database.DB.Query(query, category, limit, offset)
 	} else {
-		query += " ORDER BY updated_at DESC;"
-		rows, err = database.DB.Query(query)
+		query += " ORDER BY updated_at DESC LIMIT $1 OFFSET $2;"
+		rows, err = database.DB.Query(query, limit, offset)
 	}
 
 	if err != nil {
@@ -105,5 +118,10 @@ func GetAllProjectsHandler(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, enrichedProjects)
+	c.JSON(http.StatusOK, gin.H{
+		"data":      enrichedProjects,
+		"next_page": page + 1,
+		"prev_page": page - 1,
+		"count":     len(enrichedProjects),
+	})
 }
