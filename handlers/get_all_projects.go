@@ -26,6 +26,21 @@ func GetAllProjectsHandler(c *gin.Context) {
 
 	offset := (page - 1) * limit
 
+	// Query to get the total number of projects
+	var totalProjects int
+	countQuery := "SELECT COUNT(*) FROM projects"
+	if category != "" {
+		countQuery += " WHERE category = $1"
+		err = database.DB.QueryRow(countQuery, category).Scan(&totalProjects)
+	} else {
+		err = database.DB.QueryRow(countQuery).Scan(&totalProjects)
+	}
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
 	query := `
 		SELECT id, title, description, image, live_site_url, github_url, category, created_by, created_at, updated_at
 		FROM projects
@@ -119,9 +134,11 @@ func GetAllProjectsHandler(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data":      enrichedProjects,
-		"next_page": page + 1,
-		"prev_page": page - 1,
-		"count":     len(enrichedProjects),
+		"data":         enrichedProjects,
+		"prev_page":    page - 1,
+		"current_page": page,
+		"next_page":    page + 1,
+		"count":        len(enrichedProjects),
+		"total":        totalProjects,
 	})
 }
