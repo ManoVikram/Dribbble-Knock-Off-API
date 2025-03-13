@@ -14,7 +14,7 @@ func RegisterRoutes(server *gin.Engine) {
 	// Select project details by ID
 	server.GET("api/project/:id", handlers.GetProjectDetailsHandler)
 
-	// Select project details by ID
+	// Select projects created by an user
 	server.GET("api/projects/:id", handlers.GetProjectsByUserHandler)
 
 	// Protected routes
